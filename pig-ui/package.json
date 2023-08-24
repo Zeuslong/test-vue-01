@@ -1,0 +1,12 @@
+{
+  "name": "page-button-test1",
+  "version": "1.0.7",
+  "description": "",
+  "main": "pig-ui.common.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
