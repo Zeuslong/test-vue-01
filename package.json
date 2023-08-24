@@ -5,13 +5,24 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "package": "vue-cli-service build --target lib ./src/components/index.js --name pig-ui --dest pig-ui"
   },
   "dependencies": {
+    "@viewsuper/iclient3d-vue-for-webgl": "1.0.12",
     "core-js": "^3.8.3",
-    "vue": "^3.2.13"
+    "element-plus": "^2.3.1",
+    "element-ui": "^2.5.10",
+    "less-loader": "^6.2.0",
+    "node-sass": "^7.0.3",
+    "one-view-3d-adaptor": "^0.1.8",
+    "page-button-test1": "1.0.1",
+    "sass-loader": "^13.1.0",
+    "vue": "^3.2.13",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "echarts": "^5.0.2",
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
     "@vue/cli-plugin-babel": "~5.0.0",

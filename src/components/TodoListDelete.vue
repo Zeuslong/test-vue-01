@@ -1,199 +1,55 @@
 <template>
   <div class="hello">
-    <h1>dagadgawe</h1>
-    <el-button type="primary" @click="handleClick">
-       上传excel信息------------
-      <i class="el-icon-upload el-icon--right"></i>
-    </el-button>
-    <input
-        type="file"
-        class="csv-file-input"
-        :accept="SheetJSFT"
-        ref="input"
-        @change="uploadFileToParse"
-    />
+    <div>
+      <input v-model="inputData" type="text"/>
+      <button @click="handleClick">提交</button>
+    </div>
 
-    <el-checkbox
-        border
-        size="small"
-        v-model="firstAsHeader"
-        @change="rebuildData"
-        style="margin-left: 20px;"
-    >
-     展示首航属性
-    </el-checkbox>
-    <span>请上传excel、csv格式文件，支持UTF-8编码格式</span>
-
-    <el-table
-        :data="tableData"
-        style="width: 100%">
-      <el-table-column prop="ip" label="序号" width="180"></el-table-column>
-      <el-table-column prop="name" label="姓名" width="180"></el-table-column>
-    </el-table>
+    <div>
+      <ComponentOne v-for="(item,index) of listItem"
+                    :key="index"
+                    :content="item"
+                    :index="index"
+                    @delete="deleteMethod"
+      >
+        {{ item }}}
+      </ComponentOne>
+    </div>
   </div>
 </template>
 <script>
-  import * as XLSX from 'xlsx';
-  import {getHeaderRow} from "@/components/utils";
+// import * as XLSX from 'xlsx';
+// import {getHeaderRow} from "@/components/utils";
 // import * as lodash from "core-js";
+import ComponentOne from "@/components/ComponentOne";
 
 
 export default {
-  name: 'CsvParse',
+  name: 'TodolistDelete',
+  components: {
+    ComponentOne: ComponentOne
+  },
   data() {
     return {
-      SheetJSFT: ['xlsx', 'xlsb', 'xlsm', 'xls', 'xml', 'csv']
-          .map(function(x) {
-            return '.' + x;
-          })
-          .join(','),
-      firstAsHeader: true,
-      tempResult: null,
-      tableData:[{'ip': 'ddd','name':'ddd','CCC':'dfewf'},]
+      inputData: '',
+      listItem: [],
     };
   },
-  props: {
-    config: {
-      type: Object,
-      default() {
-        return {};
-      },
-    },
-  },
+  props: {},
   mounted() {
-    console.log(XLSX)
+
   },
   methods: {
     handleClick() {
-      console.log("handleClick methods");
-      this.$refs.input.value = null;
-      this.$refs.input.click();
+          console.log(this.inputData),
+          this.listItem.push(this.inputData)
+           this.inputData = '';
     },
-    uploadFileToParse(e) {
-      console.log("uploadFileToParse methods")
-      let files = e.target.files || e.dataTransfer.files;
-      if (!files.length) return;
-      console.log("uploadFileToParse methods")
-      //获取  到了files信息
-      console.log("uploadFileToParse methods----",files[0])
-      return this.parseFile(files[0], e);
-    },
-    to_json(workbook) {
-      // 3. 获取第一张表格(工作簿)名称
-      const firstSheetName = workbook.SheetNames[0];
-      console.log("firstSheetName-----",firstSheetName)
+    deleteMethod(index) {
 
-      // 4. 只读取 Sheet1（第一张表格）的数据
-      const worksheet = workbook.Sheets[firstSheetName]
-      console.log("worksheet-----",worksheet)
-
-      // 5. 解析数据表头
-      const header = getHeaderRow(worksheet)
-      console.log("hader信息：",header)
-      // 6. 解析数据体
-      const results = XLSX.utils.sheet_to_json(worksheet)
-      console.log("解析数据体中的内容：",results);
-      //7、将请求体中的数据放入
-      const list1 = results[0];
-      console.log("list1",list1);
-      console.log("list1--params",list1.params);
-      console.log("list1--type",list1.type);
-      console.log("list1--value",list1.value);
-
-      if (results.length>0){
-        console.log("ageawg长度:",results.length);
-      }
-      // // 7. 传入解析之后的数据
-      // generateData({ header, results })
-      // const generateData = (excelData) => {
-      //   loading.value = false
-      //   dropText.value = '拖拽一个文件'
-      //   props.uploadSuccess && props.uploadSuccess(excelData)
-      // };
-
-
-      var result = {};
-      workbook.SheetNames.forEach(function(sheetName) {
-        var roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
-          header: 1,
-        });
-        if (roa.length) {
-          roa = roa.filter(item => item.length !== 0);
-          result[sheetName] = roa;
-        }
-      });
-      this.tempResult = result;
-      return this.useFirstRowAsPropName(result);
-    },
-    rebuildData() {
-      this.tempResult &&
-      this.$emit('complete', this.useFirstRowAsPropName(this.tempResult));
-    },
-    useFirstRowAsPropName(dataArrayObj) {
-      if (this.firstAsHeader && dataArrayObj) {
-        let result = {};
-        let sheets = Object.keys(dataArrayObj);
-        sheets.forEach( sheetName => {
-          let sheetArray = dataArrayObj[sheetName];
-          let firstRow = sheetArray.shift(); // 首行作为属性名
-          // 循环数据中的每一行
-          let resultObj = [];
-          // eslint-disable-next-line no-unused-vars
-          sheetArray.forEach((item, rowIndex) => {
-            // 循环每个单元格
-            let tempObj = {};
-            for (let i = 0; i < firstRow.length; i++) {
-              // 将单元格放在对应位置上
-              tempObj[firstRow[i]] = item[i];
-            }
-            resultObj.push(tempObj);
-          });
-          result[sheetName] = resultObj;
-          // 结束处理后，把首行加上；
-          sheetArray.unshift(firstRow);
-        });
-        console.log("useFirstRowAsPropName--",result)
-        return result;
-      } else {
-        return dataArrayObj;
-      }
-    },
-    // eslint-disable-next-line no-unused-vars
-    parseFile(file, e) {
-      var vm = this;
-      var bol = false;
-      var fileReader = new FileReader();
-      fileReader.onload = function(ev) {
-        try {
-          var data = ev.target.result;
-          // 1. 获取解析到的数据
-          var data1 = e.target.result;
-          console.log("data1: " + data1);
-
-          var workbook = XLSX.read(data, {
-            type: 'binary',
-          });
-        } catch (e) {
-          console.log("打印出错误信息   ",e)
-          window.$message({
-            message: this.$t('文件类型不正确'),
-            type: 'error',
-            customClass: 'g-message',
-          });
-          return;
-        }
-        vm.$emit('complete', vm.to_json(workbook));
-      };
-      bol =
-          file.name.split('.').reverse()[0] == 'txt' ||
-          file.name.split('.').reverse()[0] == 'csv'; //判断文件类型
-      if (bol) {
-        // 将文件读取为文本
-        fileReader.readAsText(file, 'utf-8');
-      } else {
-        //将文件读取为二进制字符串
-        fileReader.readAsBinaryString(file);
-      }
+      alert(index);
+      //删除子组件下标，对应listItem中的数据
+      this.listItem.splice(index,1);
     },
   },
 };
@@ -201,6 +57,7 @@ export default {
 
 </script>
 <style lang="less" scoped>
+
 .csv-file-input {
   display: none;
 }
@@ -216,18 +73,6 @@ export default {
   }
 }
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 <!--<template>-->
